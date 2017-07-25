@@ -6,7 +6,14 @@
     #include "server.hpp"
 
     bool callback(Request* request, Response* response) {
-        // Do stuff.
+        // Show some request information
+        std::cout << "Method: " << request->getMethod() << std::endl;
+        std::cout << "Request URI: " << request->getRequestURI() << std::endl;
+        std::cout << "HTTP version: " << request->getHTTPVersion() << std::endl;
+        
+        std::cout << "Host: " << request->getHeaders()->get("Host") << std::endl << std::endl;
+        
+        // Write response
         response->setHeader("Content-Type", "text/html");
         response->writeStatus();
         response->writeHeaders();
@@ -24,8 +31,8 @@
         // Create and start server
         Server server(8080, &callback, 10);
         if(!server.start()) return 1;
-        
-        std::cout << "started on port " << server.getPort() << std::endl;
+
+            std::cout << "started on port " << server.getPort() << std::endl;
         
         // Wait for input
         std::string line;
