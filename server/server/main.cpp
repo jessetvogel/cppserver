@@ -4,7 +4,14 @@
 #include "server.hpp"
 
 bool callback(Request* request, Response* response) {
-    // Do stuff.
+    // Show some request information
+    std::cout << "Method: " << request->getMethod() << std::endl;
+    std::cout << "Request URI: " << request->getRequestURI() << std::endl;
+    std::cout << "HTTP version: " << request->getHTTPVersion() << std::endl;
+    
+    std::cout << "Host: " << request->getHeaders()->get("Host") << std::endl << std::endl;
+    
+    // Write response
     response->setHeader("Content-Type", "text/html");
     response->writeStatus();
     response->writeHeaders();

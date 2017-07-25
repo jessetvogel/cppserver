@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <fstream>
 
+#define FILE_BUFFER_SIZE (512)
+
 Response::Response(int socket) {
     this->socket = socket;
 }
@@ -27,15 +29,14 @@ bool Response::writeLine(std::string string) {
     return write(string) && writeLine();
 }
 
-#define BUFFER_SIZE (512)
 bool Response::writeFile(std::string path) {
     std::ifstream file;
     file.open(path);
     
-    char buffer[BUFFER_SIZE];
+    char buffer[FILE_BUFFER_SIZE];
     std::streamsize bytes;
     do {
-        file.read(buffer, BUFFER_SIZE);
+        file.read(buffer, FILE_BUFFER_SIZE);
         bytes = file.gcount();
         ::write(socket, buffer, bytes);
     } while(bytes > 0);

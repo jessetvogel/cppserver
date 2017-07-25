@@ -1,6 +1,8 @@
 #ifndef response_hpp
 #define response_hpp
 
+// https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html
+
 #include <string>
 
 #include "headers.hpp"

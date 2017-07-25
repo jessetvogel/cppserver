@@ -15,6 +15,7 @@ public:
     Headers();
     
     void set(std::string, std::string);
+    std::string get(std::string);
     
     bool write(Response*);
     
