@@ -17,9 +17,9 @@ class Server {
 
     int port;
     int queueSize;
-    bool (*callback)(Request*, Response*);
+    bool (*callback)(Request&, Response&);
     
-    int mainSocket;
+    int socket;
     struct sockaddr_in serverSocketInfo;
     struct sockaddr_in clientSocketInfo;
     
@@ -29,8 +29,8 @@ class Server {
     
 public:
     
-    Server(int, bool (*)(Request*, Response*), int);
-    ~Server();
+    Server(int port, bool (*callback)(Request&, Response&), int queueSize) : port(port), callback(callback), queueSize(queueSize) {}
+    inline ~Server() { if(active) stop(); }
     
     bool start();
     bool stop();

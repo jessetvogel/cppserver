@@ -5,14 +5,16 @@
 
 #include <string>
 #include <regex>
-
 #include "headers.hpp"
+
+#define DEFAULT_METHOD ("GET")
+#define DEFAULT_REQUEST_URI ("/")
+#define DEFAULT_HTTP_VERSION ("HTTP/1.1")
 
 class Request {
 
-    static std::regex requestLine;
-    static std::regex requestHeader;
-    
+    static std::regex regexRequestLine;
+
     int socket;
     
     std::string method;
@@ -20,21 +22,28 @@ class Request {
     std::string httpVersion;
     
     Headers headers;
-    
-    bool badRequest;
-    
+        
 public:
     
-    Request(int);
-    
-    bool read();
-    
-    std::string readLine();
+    Request(int socket) : socket(socket), method(DEFAULT_METHOD), requestURI(DEFAULT_REQUEST_URI), httpVersion(DEFAULT_HTTP_VERSION) {}
+    Request() : Request(-1) {}
+
+    bool receive(int);
     
     inline std::string getMethod() { return method; }
     inline std::string getRequestURI() { return requestURI; }
     inline std::string getHTTPVersion() { return httpVersion; }
     inline Headers* getHeaders() { return &headers; }
+    int getData(void*, int);
+    
+    inline void setMethod(std::string method) { this->method = method; }
+    inline void setRequestURI(std::string requestURI) { this->requestURI = requestURI; }
+    inline void setHeader(std::string field, std::string value) { headers.set(field, value); }
+    
+    bool sendRequestLine();
+    bool sendHeaders();
+    bool sendLine();
+    bool sendData(void*, int);
     
 };
 

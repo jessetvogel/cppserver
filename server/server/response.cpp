@@ -1,46 +1,49 @@
 #include "response.hpp"
-#include <unistd.h>
-#include <fstream>
+#include "socket.hpp"
 
-#define FILE_BUFFER_SIZE (512)
+#define REGEX_HTTP_VERSION "HTTP\\/1\\.1"
+#define REGEX_STATUS "[\\w\\s]+"
 
-Response::Response(int socket) {
+std::regex Response::regexStatus("^(" REGEX_HTTP_VERSION ") (" REGEX_STATUS ")$");
+
+bool Response::receive(int socket) {
+    // Store socket
     this->socket = socket;
-}
-
-bool Response::writeStatus() {
-    return write("HTTP/1.1 ") && writeLine(status);
-}
-
-bool Response::writeHeaders() {
-    return headers.write(this);
-}
-
-bool Response::write(std::string string) {
-    size_t length = string.length();
-    return ::write(socket, string.c_str(), length) == length;
-}
-
-bool Response::writeLine() {
-    return write("\n");
-}
-
-bool Response::writeLine(std::string string) {
-    return write(string) && writeLine();
-}
-
-bool Response::writeFile(std::string path) {
-    std::ifstream file;
-    file.open(path);
     
-    char buffer[FILE_BUFFER_SIZE];
-    std::streamsize bytes;
-    do {
-        file.read(buffer, FILE_BUFFER_SIZE);
-        bytes = file.gcount();
-        ::write(socket, buffer, bytes);
-    } while(bytes > 0);
+    // Read status line
+    std::cmatch cm;
+    std::string line = Socket::readLine(socket);
+    if(!std::regex_search(line.c_str(), cm, regexStatus)) return false;
     
-    file.close();
-    return true;
+    httpVersion = cm[1];
+    status = cm[2];
+    
+    // Read headers
+    if(!headers.receive(socket)) return false;
+    
+    return false;
+}
+
+int Response::getData(void* data, int bytes) {
+    return Socket::read(socket, data, bytes);
+}
+
+bool Response::sendStatus() {
+    return Socket::write(socket, "HTTP/1.1 ") && Socket::writeLine(socket, status);
+}
+
+bool Response::sendHeaders() {
+    return headers.send(socket);
+}
+
+bool Response::sendLine(std::string line) {
+    return Socket::writeLine(socket, line);
+}
+
+bool Response::sendFile(std::string path) {
+    return Socket::writeFile(socket, path);
+}
+
+bool Response::sendData(void* data, int bytes) {
+    return Socket::writeData(socket, data, bytes);
 }

@@ -3,10 +3,13 @@
 
 #include <string>
 #include <unordered_map>
+#include <regex>
 
 class Response;
 
 class Headers {
+    
+    static std::regex regexHeader;
     
     std::unordered_map<std::string, std::string> headers;
     
@@ -17,7 +20,8 @@ public:
     void set(std::string, std::string);
     std::string get(std::string);
     
-    bool write(Response*);
+    bool send(int);
+    bool receive(int);
     
 };
 
